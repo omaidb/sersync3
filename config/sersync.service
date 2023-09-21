@@ -1,0 +1,15 @@
+# /etc/systemd/system/sersync.service
+[Unit]
+Description= sersync数据实时同步服务
+# 当指定的配置文件存在时，服务才会启动
+ConditionPathExists=/usr/local/sersync/confxml.xml
+
+[Service]
+# 启动命令，不要加-d
+ExecStart=/usr/local/sersync/sersync -ro /usr/local/sersync/confxml.xml
+# 服务停止时的命令
+## 命令要以绝对路径执行
+ExecStop=/usr/bin/killall sersync
+
+[Install]
+WantedBy=multi-user.target
