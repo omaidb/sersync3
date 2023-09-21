@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<head version="2.5">
+
+	<!-- ******** rsyncd守护进程的 配置文件，如果要ssh免密传输使用另一个配置 ********* -->
+	<!--      -->
+	<host hostip="localhost" port="8008"></host>
+
+	<!-- debug调试开关 -->
+	<debug start="false" />
+
+	<!-- 排除指定数据不要进行同步(默认关闭) -->
+	<fileSystem xfs="false" />
+	<filter start="false">
+		<exclude expression="(.*)\.svn"></exclude>
+		<exclude expression="(.*)\.gz"></exclude>
+		<exclude expression="^info/*"></exclude>
+		<exclude expression="^static/*"></exclude>
+	</filter>
+
+	<!-- 监控事件信息 -->
+	<inotify>
+		<!-- 删除事件 -->
+		<delete start="true" />
+		<!-- 创建目录事件 -->
+		<createFolder start="true" />
+		<!-- 创建文件事件 -->
+		<createFile start="false" />
+		<!-- 关闭写事件 -->
+		<closeWrite start="true" />
+		<!-- 移进事件 -->
+		<moveFrom start="true" />
+		<!-- 移出事件 -->
+		<moveTo start="true" />
+		<!-- 属性事件 -->
+		<attrib start="false" />
+		<!-- 修改事件 -->
+		<modify start="false" />
+	</inotify>
+
+	<!-- 这里是实时同步配置 -->
+	<sersync>
+		<!-- 这里配置本地 的 目录 -->
+		<localpath watch="/opt/tongbu">
+			<!-- rsyncd守护进程+密码验证模式,${name}指定远程服务器上的模块名 -->
+			<remote ip="rsync远程服务器IP" name=" 远程服务器上的模块名 " />
+			<!-- <remote ip="192.168.8.39" name="tongbu" />-->
+			<!-- <remote ip="192.168.8.40" name="tongbu" />-->
+		</localpath>
+
+		<!-- rsync的配置__rsyncd守护进程+密码验证模式 -->
+		<rsync>
+			<!-- <commonParams params="-artuz" /> -->
+			<!-- 
+				# -a 保留所有属性(-rlptgoD)
+				# -u 只同步更新的文件
+				# -z 压缩传输
+				# partial:保留那些因故没有完全传输的文件，以是加快随后的再次传输
+			 -->
+			<commonParams params="-auz --partial " />
+			<!-- 不使用ssh传输 -->
+			<ssh start="false" />
+			<!-- 指定密码文件  true -->
+			<auth start="true" users="root" passwordfile="/etc/rsync.pas" />
+			<!-- port=874 -->
+			<userDefinedPort start="false" port="874" />
+			<!-- timeout=100 -->
+			<timeout start="false" time="100" />
+
+		</rsync>
+
+		<!-- default every 60mins execute once -->
+		<failLog path="/tmp/rsync_fail_log.sh" timeToExecute="60" />
+
+		<!-- 非实时同步，计划任务方式来同步 -->
+		<!-- 600mins -->
+		<crontab start="false" schedule="600">
+			<crontabfilter start="false">
+				<exclude expression="*.php"></exclude>
+				<exclude expression="info/*"></exclude>
+			</crontabfilter>
+		</crontab>
+		<plugin start="false" name="command" />
+	</sersync>
+
+	<plugin name="command">
+		<!-- prefix/opt/tongbu/mmm.sh suffix-->
+		<param prefix="/bin/sh" suffix="" ignoreError="true" />
+		<filter start="false">
+			<include expression="(.*)\.php" />
+			<include expression="(.*)\.sh" />
+		</filter>
+	</plugin>
+
+	<!-- 启用socket模块-插件 -->
+	<plugin name="socket">
+		<localpath watch="/opt/tongbu">
+			<deshost ip="192.168.138.20" port="8009" />
+		</localpath>
+	</plugin>
+
+	<!-- 启用刷新CDN模块 插件 -->
+	<plugin name="refreshCDN">
+		<localpath watch="/data0/htdocs/cms.xoyo.com/site/">
+			<cdninfo domainname="ccms.chinacache.com" port="80" username="xxxx" passwd="xxxx" />
+			<sendurl base="http://pic.xoyo.com/cms" />
+			<regexurl regex="false" match="cms.xoyo.com/site([/a-zA-Z0-9]*).xoyo.com/images" />
+		</localpath>
+	</plugin>
+
+</head>
