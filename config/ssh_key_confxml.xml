@@ -41,7 +41,7 @@
 	<!-- 这里是实时同步配置 -->
 	<sersync>
 		<!-- 这里配置本地 的 目录 -->
-		<localpath watch="/opt/tongbu">
+		<localpath watch="/data/tongbu">
 			<!-- 配置远程服务器的 同步目录 -->
 			<remote ip="rsync远程服务器IP" name="rsync远程服务器上的 路径" />
 			<!-- <remote ip="192.168.8.39" name="tongbu" />-->
@@ -82,7 +82,7 @@
 	</sersync>
 
 	<plugin name="command">
-		<!-- prefix/opt/tongbu/mmm.sh suffix-->
+		<!-- prefix/data/tongbu/mmm.sh suffix-->
 		<param prefix="/bin/sh" suffix="" ignoreError="true" />
 		<filter start="false">
 			<include expression="(.*)\.php" />
@@ -92,7 +92,7 @@
 
 	<!-- 启用socket模块-插件 -->
 	<plugin name="socket">
-		<localpath watch="/opt/tongbu">
+		<localpath watch="/data/tongbu">
 			<deshost ip="192.168.138.20" port="8009" />
 		</localpath>
 	</plugin>
